@@ -6,10 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoplistapp.R
+import com.example.shoplistapp.databinding.ItemShopDisabledBinding
+import com.example.shoplistapp.databinding.ItemShopEnabledBinding
 import com.example.shoplistapp.domain.ShopItem
 import java.lang.RuntimeException
 
@@ -34,26 +38,40 @@ class ShopListAdapter : ListAdapter<ShopItem,ShopItemViewHolder>(ShopItemDiffCal
             else -> throw RuntimeException("Unknown view type: $viewType")
         }
 
+        val binding = DataBindingUtil.inflate<ViewDataBinding>(
+            LayoutInflater.from(parent.context),
+            layoutId,
+            parent,
+            false
+        )
+
         return ShopItemViewHolder(
-            LayoutInflater.from(parent.context).inflate(layoutId, parent, false)
+            binding
         )
     }
 
     override fun onBindViewHolder(holder: ShopItemViewHolder, position: Int) {
         val shopItem = getItem(position)
-        holder.apply {
-            tvName.text = shopItem.name
-            tvCount.text = shopItem.count.toString()
-            itemView.setOnLongClickListener {
+        holder.binding.apply {
+            root.setOnLongClickListener {
                 onShopItemLongClickListener?.invoke(shopItem)
                 true
             }
-            itemView.setOnClickListener{
+            root.setOnClickListener{
                 onShopItemClickListener?.invoke(shopItem)
             }
+
 /*            if (shopItem.enable){
                 tvName.setTextColor(ContextCompat.getColor(itemView.context,R.color.black))
             }*/
+        }
+        when(holder.binding){
+            is ItemShopEnabledBinding -> {
+               holder.binding.shopItem = shopItem
+            }
+            is ItemShopDisabledBinding -> {
+                holder.binding.shopItem = shopItem
+            }
         }
     }
 
