@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoplistapp.R
+import com.example.shoplistapp.databinding.ActivityMainBinding
 import com.example.shoplistapp.domain.ShopItem
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
@@ -17,19 +18,18 @@ class MainActivity : AppCompatActivity(),ShopItemFragment.OnFinishListener {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var adapter: ShopListAdapter
-    private var shopItemContainer: FragmentContainerView? = null
+    private lateinit var binding:ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        shopItemContainer = findViewById(R.id.shopItemContainer)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         setupRecyclerView()
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         viewModel.shopList.observe(this) {
             adapter.submitList(it)
         }
-        val btnAddShopItem = findViewById<FloatingActionButton>(R.id.btnAddShopItem)
-            btnAddShopItem.setOnClickListener {
+            binding.btnAddShopItem.setOnClickListener {
                 if (isOnePaneMode()) {
                     startActivity(ShopItemActivity.newIntentAddItem(this))
                 } else {
@@ -47,9 +47,8 @@ class MainActivity : AppCompatActivity(),ShopItemFragment.OnFinishListener {
     }
 
     private fun setupRecyclerView() {
-        val rvShopList = findViewById<RecyclerView>(R.id.rvShopList)
         adapter = ShopListAdapter()
-        rvShopList.apply {
+        binding.rvShopList.apply {
             adapter = this@MainActivity.adapter
             recycledViewPool.setMaxRecycledViews(
                 ShopListAdapter.VIEW_TYPE_ENABLED,
@@ -62,7 +61,7 @@ class MainActivity : AppCompatActivity(),ShopItemFragment.OnFinishListener {
         }
         setupLongClickListener()
         setupClickListener()
-        setupSwipeListener(rvShopList)
+        setupSwipeListener(binding.rvShopList)
     }
 
     private fun setupSwipeListener(rvShopList: RecyclerView) {
@@ -94,7 +93,7 @@ class MainActivity : AppCompatActivity(),ShopItemFragment.OnFinishListener {
         }
     }
 
-    private fun isOnePaneMode() = shopItemContainer == null
+    private fun isOnePaneMode() = binding.shopItemContainer == null
 
     private fun setupLongClickListener() {
         adapter.onShopItemLongClickListener = {
